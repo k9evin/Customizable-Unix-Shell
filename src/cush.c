@@ -47,22 +47,22 @@ enum job_status {
 };
 
 struct job {
-    struct list_elem elem; /* Link element for jobs list. */
+    struct list_elem elem;   /* Link element for jobs list. */
     struct ast_pipeline
         *pipe;               /* The pipeline of commands this job represents */
     int jid;                 /* Job id. */
+    int ppid;                /* Parent pid. */
     enum job_status status;  /* Job status. */
-    int num_processes_alive; /* The number of processes that we know to be alive
-                              */
+    int num_processes_alive; /* The number of processes that we know to be alive */
     struct termios
-        saved_tty_state; /* The state of the terminal when this job was
-                            stopped after having been in foreground */
+        saved_tty_state;     /* The state of the terminal when this job was
+                                stopped after having been in foreground */
 
     /* Add additional fields here if needed. */
-    int total_processes;
-    int pid2job[MAX_CAPACITY];
-    bool killed;
-    bool finished;
+    int total_processes;     /* Total number of processes */
+    int pid[MAX_CAPACITY];   /* pid */
+    bool killed;             /* Whether this job was killed */
+    bool finished;           /* Whether this job was finished */
 };
 
 /* Utility functions for job list management.
@@ -72,12 +72,12 @@ struct job {
  */
 #define MAXJOBS (1 << 16)
 static struct list job_list;
-
 static struct job *jid2job[MAXJOBS];
 
 /* Return job corresponding to jid */
 static struct job *get_job_from_jid(int jid) {
-    if (jid > 0 && jid < MAXJOBS && jid2job[jid] != NULL) return jid2job[jid];
+    if (jid > 0 && jid < MAXJOBS && jid2job[jid] != NULL) 
+        return jid2job[jid];
 
     return NULL;
 }
@@ -86,11 +86,10 @@ static struct job *get_job_from_jid(int jid) {
 static struct job *get_job_from_pid(pid_t pid) {
     if (pid > 0) {
         struct job *j;
-        for (struct list_elem *e = list_begin(&job_list);
-             e != list_end(&job_list); e = list_next(e)) {
+        for (struct list_elem *e = list_begin(&job_list); e != list_end(&job_list); e = list_next(e)) {
             j = list_entry(e, struct job, elem);
             for (int i = 0; i < j->total_processes; i++) {
-                if (j->pid2job[i] == pid) {
+                if (j->pid[i] == pid) {
                     return j;
                 }
             }
@@ -100,11 +99,29 @@ static struct job *get_job_from_pid(pid_t pid) {
     return NULL;
 }
 
+/* Return the ppid corresponding to jid */
+int get_ppid(int jid) {
+    struct job *j;
+    for (struct list_elem *e = list_begin(&job_list); e != list_end(&job_list); e = list_next(e)) {
+        j = list_entry(e, struct job, elem);
+        if (j->jid == jid) return j->ppid;
+    }
+    return -1;
+}
+
 /* Add a new job to the job list */
 static struct job *add_job(struct ast_pipeline *pipe) {
     struct job *job = malloc(sizeof *job);
+    job->total_processes = 0;
+    job->finished = false;
+    job->killed = false;
     job->pipe = pipe;
     job->num_processes_alive = 0;
+    if (pipe->bg_job) {
+        job->status = BACKGROUND;
+    } else {
+        job->status = FOREGROUND;
+    }
     list_push_back(&job_list, &job->elem);
     for (int i = 1; i < MAXJOBS; i++) {
         if (jid2job[i] == NULL) {
@@ -289,7 +306,7 @@ static void handle_child_status(pid_t pid, int status) {
         if (job->num_processes_alive == 0) {
             job->finished = true;
             if (job->status == BACKGROUND && !job->killed) {
-                printf("\n[%d]     Done", job->jid);
+                printf("\n[%d]\tDone", job->jid);
             }
         }
     }

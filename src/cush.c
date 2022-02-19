@@ -321,9 +321,23 @@ bool is_built_in(char *cmd) {
 
 /* Handle the build in function */
 void handle_build_in(struct ast_command *cmd) {
-    char **arg = cmd->argv;
-    if (strcmp(*arg, "jobs") == 0) {
-        jobs_handler();
+    char **cmd_argv = cmd->argv;
+    int argc = 0;
+    while (*(cmd_argv + argc) != NULL) {
+        argc++;
+    }
+
+    if (strcmp(*cmd_argv, "jobs") == 0) {
+        if (argc != 1) {
+            printf("jobs: expected only one argument\n");
+        } 
+        else {
+            struct job *j;
+            for (struct list_elem *e = list_begin(&job_list); e != list_end(&job_list); e = list_next(e)) {
+                j = list_entry(e, struct job, elem);
+                print_job(j);
+            }
+        }
     }
 }
 

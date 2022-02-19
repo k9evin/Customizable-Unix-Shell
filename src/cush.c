@@ -310,8 +310,21 @@ static void handle_child_status(pid_t pid, int status) {
             }
         }
     }
+}
 
-    
+/* Check if the command is a build in function */
+bool is_built_in(char *cmd) {
+    return (strcmp(cmd, "jobs") == 0 || strcmp(cmd, "fg") == 0 ||
+            strcmp(cmd, "bg") == 0 || strcmp(cmd, "stop") == 0 ||
+            strcmp(cmd, "kill") == 0 || strcmp(cmd, "exit") == 0);
+}
+
+/* Handle the build in function */
+void handle_build_in(struct ast_command *cmd) {
+    char **arg = cmd->argv;
+    if (strcmp(*arg, "jobs") == 0) {
+        jobs_handler();
+    }
 }
 
 int main(int ac, char *av[]) {

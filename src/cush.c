@@ -327,16 +327,55 @@ void handle_build_in(struct ast_command *cmd) {
         argc++;
     }
 
-    if (strcmp(*cmd_argv, "jobs") == 0) {
-        if (argc != 1) {
-            printf("jobs: expected only one argument\n");
-        } 
-        else {
+    if (strcmp(*cmd_argv, "exit") == 0) {
+        exit(0);
+    }
+    else if (strcmp(*cmd_argv, "jobs") == 0) {
+        if (argc == 1) {
             struct job *j;
-            for (struct list_elem *e = list_begin(&job_list); e != list_end(&job_list); e = list_next(e)) {
+            for (struct list_elem *e = list_begin(&job_list);
+                e != list_end(&job_list); e = list_next(e)) {
                 j = list_entry(e, struct job, elem);
                 print_job(j);
             }
+        } 
+        else {
+            printf("jobs: expected only one argument\n");
+        }
+    }
+    else if (strcmp(*cmd_argv, "bg") == 0) {
+        if (argc == 1) {
+            printf("bg: job id is missing\n");
+        }
+        else if (argc == 2) {
+            char *arguments[MAX_CAPACITY];
+            int index = 0;
+            while (*cmd_argv) {
+                arguments[index] = *cmd_argv++;
+                index++;
+            }
+            arguments[index] = NULL;
+            int jid = atoi(arguments[1]);
+            int ppid = get_ppid(jid);
+            struct job *j = get_job_from_pid(ppid);
+            j->status = BACKGROUND;
+            killpg(ppid, SIGCONT);
+        }
+    }
+}
+
+/* Command execution function */
+void execute(struct ast_command_line *cmd_line) {
+    for (struct list_elem *e = list_begin(&cmd_line->pipes); e != list_end(&cmd_line->pipes); e = list_next(e)) {
+        pid_t pid = -1;
+        int counter = 0;
+        struct ast_pipeline *pipe_line = list_entry(e, struct ast_pipeline, elem);
+        struct list_elem *cmd_list = list_begin(&pipe_line->commands);
+        struct ast_command *cmd = list_entry(cmd_list, struct ast_command, elem);
+
+        if (is_built_in(cmd->argv[0])) {
+            handle_build_in(cmd);
+            return;
         }
     }
 }

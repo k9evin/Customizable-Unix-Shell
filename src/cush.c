@@ -14,6 +14,8 @@
 #include <termios.h>
 #include <unistd.h>
 
+/* This is a test!
+
 /* Since the handed out code contains a number of unused functions. */
 #pragma GCC diagnostic ignored "-Wunused-function"
 

@@ -380,6 +380,17 @@ void execute(struct ast_command_line *cmd_line) {
     }
 }
 
+/* Clean up the job list if the process is finished */
+void cleanup() { 
+    struct job *j;
+    for (struct list_elem *e = list_begin(&job_list); e != list_end(&job_list);) {
+        j = list_entry(e, struct job, elem);
+        if (j->finished) {
+            delete_job(j);
+            e = list_remove(e);
+        }
+    }
+
 int main(int ac, char *av[]) {
     int opt;
 

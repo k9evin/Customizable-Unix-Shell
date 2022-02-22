@@ -454,7 +454,7 @@ void handle_build_in(struct ast_command *cmd)
             }
         }
         else{
-            printf("Incorrect number of arguments for command 'kill'\n");
+            printf("kill: job id is missing\n");
         }
     }
     else if(strcmp(*cmd_argv, "stop") == 0){
@@ -462,22 +462,19 @@ void handle_build_in(struct ast_command *cmd)
             int jid = atoi(*(cmd_argv + 1));
             struct job* j = get_job_from_jid(jid);
             if (j == NULL){
-                printf("%d was not found\n", jid);
+                printf("stop %d: No such job\n", jid);
             }
             else{
-                int return_status = killpg(j->pid, SIGSTOP);
-                if (return_status >= 0)
-                {
+                if (killpg(j->pid, SIGSTOP) == 0) {
                     j->status = STOPPED;
                     termstate_save(&j->saved_tty_state);
-                }
-                else{
-                    printf("%d was not stopped\n", jid);
+                } else {
+                    printf("job %d was not stopped\n", jid);
                 }
             }
         }
         else{
-            printf("Incorrect number of arguments for command 'stop'\n");
+            printf("stop: job id is missing\n");
         }
     }
     else if (strcmp(*cmd_argv, "fg") == 0)
@@ -507,12 +504,12 @@ void handle_build_in(struct ast_command *cmd)
                 return;
             }
             if (j->status == FOREGROUND){
-                printf("%d is running\n", jid);
+                printf("job %d is running\n", jid);
                 return;
             }
         }
         else{
-            printf("Incorrect number of arguments for command 'fg'\n");
+            printf("fg: job id is missing\n");
             return;
         }
         if (j == NULL)
@@ -522,9 +519,7 @@ void handle_build_in(struct ast_command *cmd)
         }
         else{
             signal_block(SIGCHLD);
-            int return_status = killpg(j->pid, SIGCONT);
-            if(return_status >= 0)
-            {
+            if (killpg(j->pid, SIGCONT) == 0) {
                 
             }
         }

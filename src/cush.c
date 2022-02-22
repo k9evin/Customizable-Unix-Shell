@@ -43,7 +43,7 @@ static void usage(char *progname) {
 static char *build_prompt(void) {
     char hostn[1204] = "";
     gethostname(hostn, sizeof(hostn));
-    printf("<%s@%s %s>$ ", getenv("LOGNAME"), hostn, basename(getenv("PWD")));
+    printf("<%s@%s in %s>$ ", getenv("LOGNAME"), hostn, basename(getenv("PWD")));
     return strdup("");
 }
 
@@ -80,7 +80,7 @@ static struct list job_list;
 static struct job *jid2job[MAXJOBS];
 
 static int stopped_processes[MAXJOBS];
-static int total_stopped_processes = 0;
+static int total_stopped = 0;
 
 /* Return job corresponding to jid */
 static struct job *get_job_from_jid(int jid) {
@@ -93,7 +93,7 @@ static struct job *get_job_from_jid(int jid) {
 static struct job *get_job_from_pid(pid_t pid) {
     struct job *j;
     for (struct list_elem *e = list_begin(&job_list); e != list_end(&job_list);
-         e = list_next(e)) {
+        e = list_next(e)) {
         j = list_entry(e, struct job, elem);
         if (j->pid == pid) {
             return j;
@@ -150,6 +150,29 @@ static void delete_job(struct job *job) {
     free(job);
 }
 
+/* Add a stopped job to the stop_processes array. */
+static void add_stopped_process(struct job *job) {
+    stopped_processes[total_stopped] = job->jid;
+    total_stopped++;
+}
+
+/* Restart the stopped jobs */
+static void restart_stopped_process(struct job *job) {
+    int jid = job->jid;
+    
+    for (int i = 0; i < total_stopped; i++) {
+        if (jid == stopped_processes[i]) {
+            for (int j = jid; j < total_stopped - 1; j++) {
+                stopped_processes[j] = stopped_processes[j + 1];
+            }
+            stopped_processes[total_stopped] = -1;
+            total_stopped--;
+        }
+    }
+    
+}
+
+/* Get the status of the running process */
 static const char *get_status(enum job_status status) {
     switch (status) {
         case FOREGROUND:
@@ -182,6 +205,12 @@ static void print_job(struct job *job) {
     printf("[%d]\t%s\t\t(", job->jid, get_status(job->status));
     print_cmdline(job->pipe);
     printf(")\n");
+}
+
+
+/* Print a job's pid */
+static void print_pid(struct job *job) {
+    printf("[%d] %d\n", job->jid, job->pid);
 }
 
 /*
@@ -290,17 +319,17 @@ static void handle_child_status(pid_t pid, int status) {
     } else if (WIFEXITED(status)) {
         job->num_processes_alive--;
     } else if (WIFSIGNALED(status)) {
-        int signal_status = WTERMSIG(status);
+        int term_signal = WTERMSIG(status);
         job->num_processes_alive--;
-        if (signal_status == 6) {
+        if (term_signal == 6) {
             utils_error("aborted\n");
-        } else if (signal_status == 8) {
+        } else if (term_signal == 8) {
             utils_error("floating point exception\n");
-        } else if (signal_status == 9) {
+        } else if (term_signal == 9) {
             utils_error("killed\n");
-        } else if (signal_status == 11) {
+        } else if (term_signal == 11) {
             utils_error("segmentation fault\n");
-        } else if (signal_status == 15) {
+        } else if (term_signal == 15) {
             utils_error("terminated\n");
         }
     }
@@ -333,24 +362,28 @@ void handle_build_in(struct ast_command *cmd) {
                 print_job(j);
             }
         } else {
-            printf("jobs: expected only one argument\n");
+            printf("jobs: expected exactly one argument\n");
         }
     } else if (strcmp(*cmd_argv, "bg") == 0) {
         if (argc == 1) {
             printf("bg: job id is missing\n");
         } else if (argc == 2) {
-            char *arguments[MAX_CAPACITY];
-            int index = 0;
-            while (*cmd_argv) {
-                arguments[index] = *cmd_argv++;
-                index++;
+            int jid = atoi(*(cmd_argv + 1));
+            struct job *j = get_job_from_jid(jid);
+            if (j == NULL) {
+                printf("bg %d: No such job\n", jid);
+                return;
             }
-            arguments[index] = NULL;
-            int jid = atoi(arguments[1]);
-            int ppid = get_ppid(jid);
-            struct job *j = get_job_from_pid(ppid);
-            j->status = BACKGROUND;
-            killpg(ppid, SIGCONT);
+            if (j->status != STOPPED) {
+                printf("bg: %d already in background\n", jid);
+                return;
+            }
+            if (killpg(j->pid, SIGCONT) == 0) {
+                restart_stopped_process(j);
+                j->status = BACKGROUND;
+                print_pid(j);
+            }
+            termstate_give_terminal_back_to_shell();
         }
     }
 }
@@ -375,20 +408,7 @@ void execute(struct ast_command_line *cmd_line) {
     }
 }
 
-/* Clean up the job list if the process is finished */
-void cleanup() {
-    struct job *j;
-    for (struct list_elem *e = list_begin(&job_list);
-         e != list_end(&job_list);) {
-        j = list_entry(e, struct job, elem);
-        if (j->finished) {
-            delete_job(j);
-            e = list_remove(e);
-        } else {
-            e = list_next(e);
-        }
-    }
-}
+
 
 int main(int ac, char *av[]) {
     int opt;
@@ -425,10 +445,12 @@ int main(int ac, char *av[]) {
         if (list_empty(&cline->pipes)) { /* User hit enter */
             ast_command_line_free(cline);
             continue;
+        } else {
+            execute(cline);
         }
 
-        ast_command_line_print(cline); /* Output a representation of
-                                          the entered command line */
+        // ast_command_line_print(cline); /* Output a representation of
+        //                                   the entered command line */
 
         /* Free the command line.
          * This will free the ast_pipeline objects still contained
@@ -439,22 +461,6 @@ int main(int ac, char *av[]) {
          * Otherwise, freeing here will cause use-after-free errors.
          */
         ast_command_line_free(cline);
-        continue;
     }
-    else {
-        execute(cline);
-    }
-
-    // ast_command_line_print(cline); /* Output a representation of
-    //                                   the entered command line */
-
-    /* Free the command line.
-     * This will free the ast_pipeline objects still contained
-     * in the ast_command_line.  Once you implement a job list
-     * that may take ownership of ast_pipeline objects that are
-     * associated with jobs you will need to reconsider how you
-     * manage the lifetime of the associated ast_pipelines.
-     * Otherwise, freeing here will cause use-after-free errors.
-     */
-    ast_command_line_free(cline);
+    return 0;
 }

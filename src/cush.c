@@ -443,13 +443,12 @@ void handle_build_in(struct ast_command *cmd)
             else
             {
                 int return_status = killpg(j->pid, SIGSTOP);
-                if (return_status >= 0)
+                if (return_status != 0)
                 {
-                    j->status =STOPPED;
-                    termstate_save(&j->saved_tty_state);
+                    list_remove(&j->elem);
                 }
-                else{
-                    print("%d was not stopped\n", jid);
+                if (return_status < 0){
+                    printf("job: %d was not killed\n", jid);
                 }
             }
         }
@@ -468,8 +467,9 @@ void handle_build_in(struct ast_command *cmd)
                 if (killpg(j->pid, SIGSTOP) == 0) {
                     j->status = STOPPED;
                     termstate_save(&j->saved_tty_state);
-                } else {
-                    printf("job %d was not stopped\n", jid);
+                }
+                else{
+                    printf("job: %d was not stopped\n", jid);
                 }
             }
         }
@@ -520,7 +520,7 @@ void handle_build_in(struct ast_command *cmd)
         else{
             signal_block(SIGCHLD);
             if (killpg(j->pid, SIGCONT) == 0) {
-                
+
             }
         }
     }

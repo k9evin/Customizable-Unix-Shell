@@ -547,7 +547,7 @@ void handle_build_in(struct ast_command *cmd)
         }
         else
         {
-            printf("Incorrect number of arguments for command 'fg'\n");
+            printf("fg: job id is missing\n");
             return;
         }
         if (j == NULL)
@@ -564,7 +564,7 @@ void handle_build_in(struct ast_command *cmd)
                 restart_stopped_process(j->jid);
                 termstate_give_terminal_to(&j->saved_tty_state, j->pid);
                 j->status =FOREGROUND;
-                print_job(j);
+                print_pid(j);
                 wait_for_job(j);
             }
             else{

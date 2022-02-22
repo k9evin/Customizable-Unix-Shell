@@ -100,7 +100,8 @@ static struct job *get_job_from_pid(pid_t pid)
 {
     struct job *j;
     for (struct list_elem *e = list_begin(&job_list); e != list_end(&job_list);
-        e = list_next(e)) {
+         e = list_next(e))
+    {
         j = list_entry(e, struct job, elem);
         if (j->pid == pid)
         {
@@ -122,7 +123,8 @@ static struct job *get_job_from_pid(pid_t pid)
 // }
 
 /* Add a new job to the job list */
-static struct job *add_job(struct ast_pipeline *pipe) {
+static struct job *add_job(struct ast_pipeline *pipe)
+{
     struct job *job = malloc(sizeof *job);
     job->pid = 0;
     job->pipe = pipe;
@@ -165,40 +167,46 @@ static void delete_job(struct job *job)
 }
 
 /* Add a stopped job to the stop_processes array. */
-static void add_stopped_process(struct job *job) {
+static void add_stopped_process(struct job *job)
+{
     stopped_processes[total_stopped] = job->jid;
     total_stopped++;
 }
 
 /* Restart the stopped jobs */
-static void restart_stopped_process(struct job *job) {
+static void restart_stopped_process(struct job *job)
+{
     int jid = job->jid;
-    
-    for (int i = 0; i < total_stopped; i++) {
-        if (jid == stopped_processes[i]) {
-            for (int j = jid; j < total_stopped - 1; j++) {
+
+    for (int i = 0; i < total_stopped; i++)
+    {
+        if (jid == stopped_processes[i])
+        {
+            for (int j = jid; j < total_stopped - 1; j++)
+            {
                 stopped_processes[j] = stopped_processes[j + 1];
             }
             stopped_processes[total_stopped] = -1;
             total_stopped--;
         }
     }
-    
 }
 
 /* Get the status of the running process */
-static const char *get_status(enum job_status status) {
-    switch (status) {
-        case FOREGROUND:
-            return "Foreground";
-        case BACKGROUND:
-            return "Running";
-        case STOPPED:
-            return "Stopped";
-        case NEEDSTERMINAL:
-            return "Stopped (tty)";
-        default:
-            return "Unknown";
+static const char *get_status(enum job_status status)
+{
+    switch (status)
+    {
+    case FOREGROUND:
+        return "Foreground";
+    case BACKGROUND:
+        return "Running";
+    case STOPPED:
+        return "Stopped";
+    case NEEDSTERMINAL:
+        return "Stopped (tty)";
+    default:
+        return "Unknown";
     }
 }
 
@@ -226,9 +234,9 @@ static void print_job(struct job *job)
     printf(")\n");
 }
 
-
 /* Print a job's pid */
-static void print_pid(struct job *job) {
+static void print_pid(struct job *job)
+{
     printf("[%d] %d\n", job->jid, job->pid);
 }
 
@@ -351,18 +359,29 @@ static void handle_child_status(pid_t pid, int status)
     else if (WIFEXITED(status))
     {
         job->num_processes_alive--;
-    } else if (WIFSIGNALED(status)) {
+    }
+    else if (WIFSIGNALED(status))
+    {
         int term_signal = WTERMSIG(status);
         job->num_processes_alive--;
-        if (term_signal == 6) {
+        if (term_signal == 6)
+        {
             utils_error("aborted\n");
-        } else if (term_signal == 8) {
+        }
+        else if (term_signal == 8)
+        {
             utils_error("floating point exception\n");
-        } else if (term_signal == 9) {
+        }
+        else if (term_signal == 9)
+        {
             utils_error("killed\n");
-        } else if (term_signal == 11) {
+        }
+        else if (term_signal == 11)
+        {
             utils_error("segmentation fault\n");
-        } else if (term_signal == 15) {
+        }
+        else if (term_signal == 15)
+        {
             utils_error("terminated\n");
         }
     }
@@ -402,7 +421,9 @@ void handle_build_in(struct ast_command *cmd)
                 j = list_entry(e, struct job, elem);
                 print_job(j);
             }
-        } else {
+        }
+        else
+        {
             printf("jobs: expected exactly one argument\n");
         }
     }
@@ -411,18 +432,23 @@ void handle_build_in(struct ast_command *cmd)
         if (argc == 1)
         {
             printf("bg: job id is missing\n");
-        } else if (argc == 2) {
+        }
+        else if (argc == 2)
+        {
             int jid = atoi(*(cmd_argv + 1));
             struct job *j = get_job_from_jid(jid);
-            if (j == NULL) {
+            if (j == NULL)
+            {
                 printf("bg %d: No such job\n", jid);
                 return;
             }
-            if (j->status != STOPPED) {
+            if (j->status != STOPPED)
+            {
                 printf("bg: %d already in background\n", jid);
                 return;
             }
-            if (killpg(j->pid, SIGCONT) == 0) {
+            if (killpg(j->pid, SIGCONT) == 0)
+            {
                 restart_stopped_process(j);
                 j->status = BACKGROUND;
                 print_pid(j);
@@ -447,39 +473,48 @@ void handle_build_in(struct ast_command *cmd)
                 {
                     list_remove(&j->elem);
                 }
-                if (return_status < 0){
+                if (return_status < 0)
+                {
                     printf("job: %d was not killed\n", jid);
                 }
             }
         }
-        else{
+        else
+        {
             printf("kill: job id is missing\n");
         }
     }
-    else if(strcmp(*cmd_argv, "stop") == 0){
-        if (argc == 2){
+    else if (strcmp(*cmd_argv, "stop") == 0)
+    {
+        if (argc == 2)
+        {
             int jid = atoi(*(cmd_argv + 1));
-            struct job* j = get_job_from_jid(jid);
-            if (j == NULL){
+            struct job *j = get_job_from_jid(jid);
+            if (j == NULL)
+            {
                 printf("stop %d: No such job\n", jid);
             }
-            else{
-                if (killpg(j->pid, SIGSTOP) == 0) {
+            else
+            {
+                if (killpg(j->pid, SIGSTOP) == 0)
+                {
                     j->status = STOPPED;
                     termstate_save(&j->saved_tty_state);
                 }
-                else{
+                else
+                {
                     printf("job: %d was not stopped\n", jid);
                 }
             }
         }
-        else{
+        else
+        {
             printf("stop: job id is missing\n");
         }
     }
     else if (strcmp(*cmd_argv, "fg") == 0)
     {
-        struct job* j = NULL;
+        struct job *j = NULL;
         int jid = 0;
 
         if (argc == 1)
@@ -489,7 +524,8 @@ void handle_build_in(struct ast_command *cmd)
                 j = get_job_from_jid(stopped_processes[total_stopped - 1]);
                 jid = j->jid;
             }
-            else {
+            else
+            {
                 printf("No stopped job\n");
                 return;
             }
@@ -503,12 +539,14 @@ void handle_build_in(struct ast_command *cmd)
                 printf("job was not found\n");
                 return;
             }
-            if (j->status == FOREGROUND){
+            if (j->status == FOREGROUND)
+            {
                 printf("job %d is running\n", jid);
                 return;
             }
         }
-        else{
+        else
+        {
             printf("fg: job id is missing\n");
             return;
         }
@@ -517,10 +555,11 @@ void handle_build_in(struct ast_command *cmd)
             printf("No stopped job was founded\n");
             return;
         }
-        else{
+        else
+        {
             signal_block(SIGCHLD);
-            if (killpg(j->pid, SIGCONT) == 0) {
-
+            if (killpg(j->pid, SIGCONT) == 0)
+            {
             }
         }
     }
@@ -609,7 +648,9 @@ int main(int ac, char *av[])
         { /* User hit enter */
             ast_command_line_free(cline);
             continue;
-        } else {
+        }
+        else
+        {
             execute(cline);
         }
 

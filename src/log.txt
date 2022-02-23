@@ -1,0 +1,22 @@
+cush> /home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP -divzero/home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP -divzero
+
+floating point exception
+Success
+cush> /home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP -segfault/home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP -segfault
+
+segmentation fault
+Success
+cush> /home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP -abort/home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP -abort
+
+aborted
+Success
+cush> /home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP/home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP
+
+killed
+Success
+cush> /home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP/home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP
+
+terminated
+Success
+cush> exitexit
+

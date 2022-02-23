@@ -1,11 +1,10 @@
 #
 # A simple Makefile to build the shell
 #
-LDFLAGS=-L../posix_spawn
-LDLIBS=-lspawn -ll -lreadline
+LDLIBS=-ll -lreadline
 # The use of -Wall, -Werror, and -Wmissing-prototypes is mandatory 
 # for this assignment
-CFLAGS=-Wall -Werror -Wmissing-prototypes -I../posix_spawn -g -O2 -fsanitize=undefined
+CFLAGS=-Wall -Werror -Wmissing-prototypes -g -O2
 YACC=bison
 
 OBJECTS=list.o shell-ast.o termstate_management.o utils.o signal_support.o
@@ -24,9 +23,8 @@ shell-grammar.o: shell-grammar.y shell-grammar.l $(HEADERS)
 
 # build the shell
 cush: $(OBJECTS) cush.o $(HEADERS) shell-grammar.o
-	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) cush.o shell-grammar.o $(OBJECTS) $(LDLIBS)
+	$(CC) $(CFLAGS) -o $@ cush.o shell-grammar.o $(OBJECTS) $(LDLIBS)
 
 clean:
 	rm -f $(OBJECTS) cush cush.o shell-grammar.o \
 		core.* tests/*.pyc
-

@@ -98,10 +98,23 @@ An example of executing the Ctrl-Z command is shown below:
 
 Description of Extended Functionality
 -------------------------------------
-<describe your IMPLEMENTATION of the following functionality:
-I/O, Pipes, Exclusive Access >
+I/O: The I/O redirections read input from the iored_input file and write the last command to the 
+iored_output file. It then check if needs to be appended to the end of the file. Else, write the
+last command to the iored_output file. Last but not least, it checks to see if stderr should be 
+redirected as well.
 
+Pipes: The I/O Piping iterates through the commands in the pipeline and makes sure to block
+the signal while doing so. Put the commands into an array, where the array of pointers to 
+words makes up the command. It forks off a child process to execute each command in a pipeline. 
+Creates a new process group if this is the first command in the pipe. Else, for the other commands
+in the pipe, put them in the group of the first command. For the parent code block, sets the
+process group id to the first spawned processes pid. Fills in the pid array in jobs and then 
+increment counter as well as update the job. Again, increment the counter. Last but not least, 
+call function to close all open pipes.
 
+Exclusive Access: The exclusive access updates the job status and print job. Give control of
+the terminal to the running process group. Wait for the job to finish. Ater waiting completed return 
+back terminal control to the shell. Last but not least, unblock the SigChld.
 
 List of Additional Builtins Implemented
 ---------------------------------------

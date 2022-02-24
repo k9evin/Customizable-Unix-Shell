@@ -1,20 +1,20 @@
-cush> /home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP -divzero/home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP -divzero
+cush> /home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6 -divzero/home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6 -divzero
 
 floating point exception
 Success
-cush> /home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP -segfault/home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP -segfault
+cush> /home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6 -segfault/home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6 -segfault
 
 segmentation fault
 Success
-cush> /home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP -abort/home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP -abort
+cush> /home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6 -abort/home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6 -abort
 
 aborted
 Success
-cush> /home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP/home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP
+cush> /home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6/home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6
 
 killed
 Success
-cush> /home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP/home/ugrads/majors/pangmin/p1/src/.tmp/tmpW6LXHP
+cush> /home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6/home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6
 
 terminated
 Success

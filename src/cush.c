@@ -584,7 +584,7 @@ void execute(struct ast_command_line *cmdline) {
         }
         /*call function to close all open pipes*/
         // closePipes(numPipes, pipefds);
-        for (int i = 0; i < numPipes; i++) {
+        for (int i = 0; i < 2 * numPipes; i++) {
             close(pipefds[i]);
         }
 

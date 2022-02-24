@@ -16,9 +16,6 @@ is no important notes that require attention.
 
 Description of Base Functionality
 ---------------------------------
-<describe your IMPLEMENTATION of the following commands:
-kill, stop, \ˆC, \ˆZ >
-
 jobs: The job command iterates through the list of jobs and then 
 prints out all the jobs that are both running and stopped in the 
 background. It will first check to see if there is only one
@@ -67,7 +64,37 @@ Note, "[1]" is the jid, "Running" is the current status of the job,
 "(sleep 100)" is the name of the job.
 
 kill: The kill command kills a specified job by its jid. It retrieves the specified
-job and sents a SUGKILL signal through killpg() method.
+job and sends a SIGKILL signal through killpg() method. The shell saves the state of
+specified job in the terminal.
+An example of executing the kill command is shown below:
+cush> sleep 100 &
+[1] 1275702
+cush> kill 1
+cush> killed
+Success
+Note, "1" is the specified jid that is getting killed.
+
+stop: The stop command stops a specified job by its jid. It retrieves the specified job
+and sends a SIGSTOP through the killpg() method. The shell saves the state of
+the specified job in the terminal.
+An example of executing the stop command is shown below:
+cush> sleep 100 &
+[1] 1278308
+cush> stop 1
+cush> [1]       Stopped         (sleep 100)
+Note, "1" is the specified jid that is stopped.
+
+\ˆC: The Ctrl-C command sends a WIFSIGNALED signal to kill the process group in the foreground.
+Similar to the kill command.
+An example of executing the Ctrl-C command is shown below:
+cush> sleep 100 &
+[1] 1286810
+cush> ^C
+
+\ˆZ: The Ctrl-Z command sends a WIFSTOPPED signal to stop the process group in the foreground.
+Similar to the stop command. The shell then prints out the jid, job status, and the name of the job.
+An example of executing the Ctrl-Z command is shown below:
+^Z[1]   Stopped         (sleep 100)
 
 Description of Extended Functionality
 -------------------------------------

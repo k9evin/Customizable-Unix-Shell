@@ -1,3 +1,26 @@
+<<<<<<< HEAD
+cush> /home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6 -divzero/home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6 -divzero
+
+floating point exception
+Success
+cush> /home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6 -segfault/home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6 -segfault
+
+segmentation fault
+Success
+cush> /home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6 -abort/home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6 -abort
+
+aborted
+Success
+cush> /home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6/home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6
+
+killed
+Success
+cush> /home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6/home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpMzDfI6
+
+terminated
+Success
+cush> exitexit
+=======
 cush> sleep 1sleep 1
 
 cush> vimvim
@@ -5,5 +28,6 @@ cush> vimvim
 [?2004h[?1049h[22;0;0t[?1h=[?2004h[1;24r[?12h[?12l[27m[23m[29m[m[H[2J[2;1H▽[6n[2;1H  [1;1H[>c]10;?]11;?[?25l[2;1H[94m~                                                                                                                                                                                                       [3;1H~                                                                                                                                                                                                       [4;1H~                                                                                                                                                                                                       [5;1H~                                                                                                                                                                                                       [6;1H~                                                                                                                                                                                                       [7;1H~                                                                                                                                                                                                       [8;1H~                                                                                                                                                                                                       [9;1H~                                                                                                                                                                                                       [10;1H~                                                                                                                                                                                                       [11;1H~                                                                                                                                                                                                       [12;1H~                                                                                                                                                                                                       [13;1H~                                                                                                                                                                                                       [14;1H~                                                                                                                                                                                                       [15;1H~                                                                                                                                                                                                       [16;1H~                                                                                                                                                                                                       [17;1H~                                                                                                                                                                                                       [18;1H~                                                                                                                                                                                                       [19;1H~                                                                                                                                                                                                       [20;1H~                                                                                                                                                                                                       [21;1H~                                                                                                                                                                                                       [22;1H~                                                                                                                                                                                                       [23;1H~                                                                                                                                                                                                       [m[24;183H0,0-1[9CAll[6;92HVIM - Vi IMproved[8;93Hversion 8.0.1763[9;89Hby Bram Moolenaar et al.[10;84HModified by [34m<bugzilla@redhat.com>[m[11;79HVim is open source and freely distributable[13;86HBecome a registered Vim user![14;78Htype  :help register[34m<Enter>[m   for information [16;78Htype  :q[34m<Enter>[m               to exit         [17;78Htype  :help[34m<Enter>[m  or  [34m<F1>[m  for on-line help[18;78Htype  :help version8[34m<Enter>[m   for version info[1;1H[?25hkilled
 Success
 cush> sleep 1sleep 1
+>>>>>>> f6ca0e1ba6637bd6b17acc02c9a617009327f443
 
 cush> 

@@ -9,8 +9,9 @@
 #include <fcntl.h>
 #include <libgen.h>
 #include <limits.h>
-#include <stdio.h>
+#include <readline/history.h>
 #include <readline/readline.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <termios.h>
@@ -67,7 +68,7 @@ struct job {
                             stopped after having been in foreground */
     int total_processes; /* Total number of processes */
     int pid[MAX_CAP];    /* pid array */
-    pid_t pgid;            /* Process group id */
+    pid_t pgid;          /* Process group id */
 };
 
 void handle_child_process(int fds[], bool not_last, int total_pipes,
@@ -115,7 +116,7 @@ static struct job *get_job_from_pid(pid_t pid) {
             }
         }
         return NULL;
-    } 
+    }
     /* Return NULL if pid is invalid */
     else {
         return NULL;
@@ -305,12 +306,12 @@ static void handle_child_status(pid_t pid, int status) {
         termstate_save(&job->saved_tty_state);
         /* Print the stopped process */
         print_job(job);
-    } 
+    }
     /* Check if the child exited */
     else if (WIFEXITED(status)) {
         /* Decrement the number of running processes */
         job->num_processes_alive--;
-    } 
+    }
     /* Check if the child was terminated by a signal */
     else if (WIFSIGNALED(status)) {
         job->num_processes_alive = 0;
@@ -333,7 +334,8 @@ static void handle_child_status(pid_t pid, int status) {
 bool is_built_in(char *cmd) {
     return (strcmp(cmd, "jobs") == 0 || strcmp(cmd, "fg") == 0 ||
             strcmp(cmd, "bg") == 0 || strcmp(cmd, "stop") == 0 ||
-            strcmp(cmd, "kill") == 0 || strcmp(cmd, "exit") == 0);
+            strcmp(cmd, "kill") == 0 || strcmp(cmd, "exit") == 0 ||
+            strcmp(cmd, "history") == 0);
 }
 
 /* Handle the build in function */
@@ -459,6 +461,12 @@ void handle_build_in(struct ast_command *cmd) {
         } else {
             printf("fg: job id is missing\n");
         }
+    } else if (strcmp(*cmd_argv, "history") == 0) {
+        HISTORY_STATE *history = history_get_history_state();
+        HIST_ENTRY **hist_list = history_list();
+        for (int i = 0; i < history->length; i++) {
+            printf("%d %s\n", (i + 1), hist_list[i]->line);
+        }
     }
 }
 
@@ -468,7 +476,8 @@ void execute(struct ast_command_line *cmdline) {
     for (struct list_elem *e = list_begin(&cmdline->pipes);
          e != list_end(&cmdline->pipes); e = list_next(e)) {
         /* Get the pipeline from the command line */
-        struct ast_pipeline *pipe_line = list_entry(e, struct ast_pipeline, elem);
+        struct ast_pipeline *pipe_line =
+            list_entry(e, struct ast_pipeline, elem);
 
         /* Get the first command from the pipeline */
         struct ast_command *cmd = list_entry(list_begin(&pipe_line->commands),
@@ -485,7 +494,6 @@ void execute(struct ast_command_line *cmdline) {
 }
 
 void handle_pipeline(struct ast_pipeline *pipe_line, struct ast_command *cmd) {
-
     int pipe_counter = 0;
     pid_t pid = -1;
 
@@ -493,7 +501,8 @@ void handle_pipeline(struct ast_pipeline *pipe_line, struct ast_command *cmd) {
     struct job *j = add_job(pipe_line);
     /* Get the total number of commands in the pipeline */
     int total_commands = list_size(&pipe_line->commands);
-    /* The total number of pipes should be one less than the number of total commands */
+    /* The total number of pipes should be one less than the number of total
+     * commands */
     int total_pipes = total_commands - 1;
     /* Initialize the current command counter */
     int curr_cmd = 0;
@@ -536,7 +545,6 @@ void handle_pipeline(struct ast_pipeline *pipe_line, struct ast_command *cmd) {
     for (struct list_elem *cmd_line = list_begin(&pipe_line->commands);
          cmd_line != list_end(&pipe_line->commands);
          cmd_line = list_next(cmd_line)) {
-
         struct ast_command *cmd =
             list_entry(cmd_line, struct ast_command, elem);
 
@@ -557,87 +565,93 @@ void handle_pipeline(struct ast_pipeline *pipe_line, struct ast_command *cmd) {
 
         /* Fork off a child process to execute each command in a pipeline */
         if ((pid = fork()) == 0) {
-            /*create a new process group if this is the first command in the
-             * pipe */
+            /* Create a new process group if it is the first command */
             if (curr_cmd == 0) {
                 setpgid(0, 0);
             }
-            /*else for the other commands in the pipe put them in the group
-            of the first command*/
+            /* Set the remaining processes in the pipe to have the same pgid */
             else {
                 setpgid(0, j->pgid);
             }
+
+            /* Idetify the last command in the pipe */
             bool not_last = not_last_arg(curr_cmd, total_commands);
+
+            /* Handle the child process after forking */
             handle_child_process(fds, not_last, total_pipes, pipe_counter,
                                  cmd_arg, argv);
         }
 
-        /*Parent Code Block*/
+        /* Parent process */
         else {
-            /*Sets the Process group id to the first spawned processes pid*/
+            /* Parent's pid and pgid will be the same as its child pgid */
             if (curr_cmd == 0) {
                 pgid = pid;
                 j->pgid = pgid;
             }
 
             setpgid(pid, pgid);
-            /*Fills in the pid array in jobs*/
+            /* Add pid to the pid array in job */
             j->pid[curr_cmd] = pid;
-            /*increment counter*/
-            pipe_counter += 2;
-            /*update the job*/
+
+            /* Update the number of alive process and the total process */
             j->num_processes_alive = j->num_processes_alive + 1;
             j->total_processes = j->total_processes + 1;
-            /*increment counter*/
+
+            /* Increment command and pipe counter */
             curr_cmd++;
+            pipe_counter += 2;
         }
     }
-    /*call function to close all open pipes*/
-    for (int i = 0; i < 2 * total_pipes; i++) {
+
+    /* Close the opened pipe */
+    for (int i = 0; i < total_pipes * 2; i++) {
         close(fds[i]);
     }
 
-    /*FILE IO reset Block*/
+    /* Reset the file to the console after I/O redirection */
     freopen("/dev/tty", "w", stdout);
     freopen("/dev/tty", "r", stdin);
     dup2(STDERR_FILENO, STDERR_FILENO);
-    /*********************/
 
+    /* Check if the program is executed in the background & */
     if (j->pipe->bg_job) {
-        /*Update the job status and print job*/
+        /* Set the status of the job to BG */
         j->status = BACKGROUND;
+        /* Print the job running on the BG */
         printf("[%d] %d\n", j->jid, pid);
-    }
-    else {
-        /*Give control of terminal to the running process group*/
+    } else {
+        /* Give the terminal to the process group */
         termstate_give_terminal_to(NULL, pgid);
-        /*Wait for the job*/
+        /* Wait until the job is done */
         wait_for_job(j);
-        /*after waiting completed return back terminal controk to the
-         * shell*/
+        /* Give the terminal back to shell */
         termstate_give_terminal_back_to_shell();
     }
-
-    /*Unblock SigChld*/
+    /* Unblock the signal */
     signal_unblock(SIGCHLD);
 }
 
+/* Handle the child process */
 void handle_child_process(int fds[], bool not_last, int total_pipes,
                           int pipe_counter, char *cmd_arg, char **argv) {
-    if (not_last) {
-        if (dup2(fds[pipe_counter + 1], STDOUT_FILENO) == -1) {
-            perror("Error occurred at dup2()");
-            exit(EXIT_FAILURE);
-        }
-    }
+    /* If it is not the first command, read from stdin */
     if (pipe_counter != 0) {
         if (dup2(fds[pipe_counter - 2], STDIN_FILENO) == -1) {
             perror("Error occurred at dup2()");
             exit(EXIT_FAILURE);
         }
     }
+    /* If it is not the last command, write to stdout */
+    if (not_last) {
+        if (dup2(fds[pipe_counter + 1], STDOUT_FILENO) == -1) {
+            perror("Error occurred at dup2()");
+            exit(EXIT_FAILURE);
+        }
+    }
+    /* Execute the command by replacing the current process */
     if (execvp(cmd_arg, argv) == -1) {
-        perror("no such file or directory\n");
+        perror("");
         exit(EXIT_FAILURE);
     }
 }
@@ -663,6 +677,7 @@ int main(int ac, char *av[]) {
     list_init(&job_list);
     signal_set_handler(SIGCHLD, sigchld_handler);
     termstate_init();
+    using_history();
 
     /* Read/eval loop. */
     for (;;) {
@@ -683,8 +698,12 @@ int main(int ac, char *av[]) {
         char *cmdline = readline(prompt);
         free(prompt);
 
-        if (cmdline == NULL) /* User typed EOF */
+        if (cmdline == NULL) { /* User typed EOF */
             break;
+        } else {
+            add_history(cmdline);
+            add_history_time(cmdline);
+        }
 
         struct ast_command_line *cline = ast_parse_command_line(cmdline);
         free(cmdline);
@@ -698,8 +717,9 @@ int main(int ac, char *av[]) {
             execute(cline);
         }
 
-        /* Output a representation of the entered command line (Useful when debugging) */
-        // ast_command_line_print(cline); 
+        /* Output a representation of the entered command line (Useful when
+         * debugging) */
+        // ast_command_line_print(cline);
         // /* Free the command line.
         //  * This will free the ast_pipeline objects still contained
         //  * in the ast_command_line.  Once you implement a job list

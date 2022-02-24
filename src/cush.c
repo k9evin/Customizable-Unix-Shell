@@ -38,12 +38,12 @@ static void usage(char *progname) {
 
 /* Build a prompt */
 static char *build_prompt(void) {
-    // char hostn[1204] = "";
-    // gethostname(hostn, sizeof(hostn));
-    // printf("<%s@%s in %s>$ ", getenv("LOGNAME"), hostn,
-    //        basename(getenv("PWD")));
-    // return strdup("");
-    return strdup("cush> ");
+    char hostn[1204] = "";
+    gethostname(hostn, sizeof(hostn));
+    printf("<%s@%s in %s>$ ", getenv("LOGNAME"), hostn,
+           basename(getenv("PWD")));
+    return strdup("");
+    // return strdup("cush> ");
 }
 
 enum job_status {

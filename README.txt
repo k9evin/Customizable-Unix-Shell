@@ -118,6 +118,5 @@ back terminal control to the shell. Last but not least, unblock the SigChld.
 
 List of Additional Builtins Implemented
 ---------------------------------------
-(Written by Your Team)
-<builtin name>
-<description>
+custom prompt
+The custom prompt

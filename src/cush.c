@@ -43,7 +43,6 @@ static char *build_prompt(void) {
     printf("<%s@%s %s>$ ", getenv("LOGNAME"), basename(hostn),
            basename(getenv("PWD")));
     return strdup("");
-    //return strdup("cush> ");
 } 
 
 enum job_status {
@@ -715,26 +714,25 @@ int main(int ac, char *av[]) {
              */
             if (result < 0 || result == 2) {
                 exit(EXIT_FAILURE);
-            } else {
-                /* Add the command into the history */
-                add_history(expansion);
-                struct ast_command_line *cline = ast_parse_command_line(expansion);
-
-                /* Free the cmdline and expansion */
-                free(cmdline);
-                free(expansion);
-
-                if (cline == NULL) /* Error in command line */
-                    continue;
-
-                if (list_empty(&cline->pipes)) { /* User hit enter */
-                    ast_command_line_free(cline);
-                    continue;
-                } else {
-                    /* Execute the command */
-                    execute(cline);
-                }
             }
+            /* Add the command into the history */
+            add_history(expansion);
+            struct ast_command_line *cline = ast_parse_command_line(expansion);
+
+            /* Free the cmdline and expansion */
+            free(cmdline);
+            free(expansion);
+
+            if (cline == NULL) /* Error in command line */
+                continue;
+
+            if (list_empty(&cline->pipes)) { /* User hit enter */
+                ast_command_line_free(cline);
+                continue;
+            } else {
+                /* Execute the command */
+                execute(cline);
+            } 
         }
 
         

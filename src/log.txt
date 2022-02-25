@@ -1,91 +1,38 @@
-<pangmin@atlantis src>$ ls -als -a
+<pangmin@holly.rlogin src>$ echo helloecho hello
 
-.     cush.c		     custom_tests.tst	 history_test.py  list.o    output_spec.py   shell-ast.h      shell-grammar.o	signal_support.h	termstate_management.h	utils.c  .vscode
-..    cush.o		     gback_glob_test.py  list.c		  log.txt   output_spec.pyc  shell-ast.o      shell-grammar.y	signal_support.o	termstate_management.o	utils.h
-cush  custom_prompt_test.py  .gitignore		 list.h		  Makefile  shell-ast.c      shell-grammar.l  signal_support.c	termstate_management.c	.tmp			utils.o
-<pangmin@atlantis src>$ historyhistory
+hello
+<pangmin@holly.rlogin src>$ historyhistory
 
-1 ls -a
+1 echo hello
 2 history
-<pangmin@atlantis src>$ ls -lls -l
+<pangmin@holly.rlogin src>$ echo hello | revecho hello | rev
 
-total 668
--rwx------. 1 pangmin Majors 194824 Feb 24 21:16 cush
--rw-------. 1 pangmin Majors  25925 Feb 24 21:16 cush.c
--rw-------. 1 pangmin Majors  95512 Feb 24 21:16 cush.o
--rw-------. 1 pangmin Majors    304 Feb 24 21:19 custom_prompt_test.py
--rw-------. 1 pangmin Majors     72 Feb 24 21:19 custom_tests.tst
--rw-r--r--. 1 pangmin Majors   1995 Feb 14 15:46 gback_glob_test.py
--rw-------. 1 pangmin Majors   2253 Feb 24 21:31 history_test.py
--rw-r--r--. 1 pangmin Majors  14778 Feb 14 15:46 list.c
--rw-r--r--. 1 pangmin Majors   5937 Feb 14 15:46 list.h
--rw-------. 1 pangmin Majors  64520 Feb 24 21:16 list.o
--rw-------. 1 pangmin Majors    617 Feb 24 21:31 log.txt
--rw-r--r--. 1 pangmin Majors    790 Feb 23 03:36 Makefile
--rw-------. 1 pangmin Majors   1425 Feb 24 20:12 output_spec.py
--rw-------. 1 pangmin Majors    691 Feb 24 20:12 output_spec.pyc
--rw-r--r--. 1 pangmin Majors   4425 Feb 14 15:46 shell-ast.c
--rw-r--r--. 1 pangmin Majors   2676 Feb 14 15:46 shell-ast.h
--rw-------. 1 pangmin Majors  22224 Feb 24 21:16 shell-ast.o
--rw-r--r--. 1 pangmin Majors    564 Feb 14 15:46 shell-grammar.l
--rw-------. 1 pangmin Majors 109592 Feb 24 21:16 shell-grammar.o
--rw-r--r--. 1 pangmin Majors   8215 Feb 14 15:46 shell-grammar.y
--rw-r--r--. 1 pangmin Majors   2344 Feb 14 15:46 signal_support.c
--rw-r--r--. 1 pangmin Majors    578 Feb 14 15:46 signal_support.h
--rw-------. 1 pangmin Majors  15296 Feb 24 21:16 signal_support.o
--rw-r--r--. 1 pangmin Majors   2996 Feb 14 15:46 termstate_management.c
--rw-r--r--. 1 pangmin Majors   1455 Feb 14 15:46 termstate_management.h
--rw-------. 1 pangmin Majors  16712 Feb 24 21:16 termstate_management.o
--rw-r--r--. 1 pangmin Majors   1146 Feb 14 15:46 utils.c
--rw-r--r--. 1 pangmin Majors    292 Feb 14 15:46 utils.h
--rw-------. 1 pangmin Majors  10088 Feb 24 21:16 utils.o
-<pangmin@atlantis src>$ psps
+olleh
+<pangmin@holly.rlogin src>$ !!!!
+
+olleh
+<pangmin@holly.rlogin src>$ psps
 
     PID TTY          TIME CMD
- 557261 pts/6    00:00:00 cush
- 557277 pts/6    00:00:00 ps
-<pangmin@atlantis src>$ ps -jps -j
+1761101 pts/6    00:00:00 cush
+1761117 pts/6    00:00:00 ps
+<pangmin@holly.rlogin src>$ !1!1
 
-    PID    PGID     SID TTY          TIME CMD
- 557261  557261  557261 pts/6    00:00:00 cush
- 557278  557278  557261 pts/6    00:00:00 ps
-<pangmin@atlantis src>$ historyhistory
+hello
+<pangmin@holly.rlogin src>$ ps -aps -a
 
-1 ls -a
-2 history
-3 ls -l
-4 ps
-5 ps -j
-6 history
-<pangmin@atlantis src>$ !1!1
+    PID TTY          TIME CMD
+1761095 pts/27   00:00:00 stdriver.py
+1761100 pts/27   00:00:00 python2
+1761119 pts/6    00:00:00 ps
+<pangmin@holly.rlogin src>$ !e!e
 
-.     cush.c		     custom_tests.tst	 history_test.py  list.o    output_spec.py   shell-ast.h      shell-grammar.o	signal_support.h	termstate_management.h	utils.c  .vscode
-..    cush.o		     gback_glob_test.py  list.c		  log.txt   output_spec.pyc  shell-ast.o      shell-grammar.y	signal_support.o	termstate_management.o	utils.h
-cush  custom_prompt_test.py  .gitignore		 list.h		  Makefile  shell-ast.c      shell-grammar.l  signal_support.c	termstate_management.c	.tmp			utils.o
-<pangmin@atlantis src>$ historyhistory
+hello
+<pangmin@holly.rlogin src>$ echo hello | revecho hello | rev
 
-1 ls -a
-2 history
-3 ls -l
-4 ps
-5 ps -j
-6 history
-7 ls -a
-8 history
-<pangmin@atlantis src>$ !p!p
+olleh
+<pangmin@holly.rlogin src>$ [Aecho hello | rev
 
-    PID    PGID     SID TTY          TIME CMD
- 557261  557261  557261 pts/6    00:00:00 cush
- 557280  557280  557261 pts/6    00:00:00 ps
-<pangmin@atlantis src>$ historyhistory
+olleh
+<pangmin@holly.rlogin src>$ exitexit
 
-1 ls -a
-2 history
-3 ls -l
-4 ps
-5 ps -j
-6 history
-7 ls -a
-8 history
-9 ps -j
-10 history

@@ -10,70 +10,40 @@ console = setup_tests()
 # ensure that shell prints expected prompt
 expect_prompt()
 
-# exuecute the program
-sendline("ls -a")
+# sendline for testing purpose
+sendline("echo hello")
 
 # execute the history builtin command
-run_builtin('history')
+sendline("history")
 
-# ensure that shell prints expected prompt
-expect_prompt("The shell does not print expected prompt!")
+# expect "2 history" shown in console
+expect("2 history")
 
-assert ('1'), "Not properly display index"
-assert ('ls -a'), "Not properly display command"
+# test !! to execute the most recent command
+sendline("echo hello | rev")
+sendline("!!")
+expect("olleh")
 
-# exuecute the program
-sendline("ls -l")
 sendline("ps")
-sendline("ps -j")
 
-# execute the history builtin command
-run_builtin('history')
-
-assert ('1'), "Not properly display index"
-assert ('ls -l'), "Not properly display command"
-assert ('2'), "Not properly display index"
-assert ('ps'), "Not properly display command"
-assert ('3'), "Not properly display index"
-assert ('ps -j'), "Not properly display command"
-
-# exuecute the program
+# test !1 to execute the first command
 sendline("!1")
+expect("hello")
 
-# execute the history builtin command
-run_builtin('history')
+# test !e to execute the most recent command that starts with 'e'
+sendline("ps -a")
+sendline("!e")
+expect("hello")
 
-assert ('1'), "Not properly display index"
-assert ('ls -l'), "Not properly display command"
-assert ('2'), "Not properly display index"
-assert ('ps'), "Not properly display command"
-assert ('3'), "Not properly display index"
-assert ('ps -j'), "Not properly display command"
-assert ('4'), "Not properly display index"
-assert ('history'), "Not properly display command"
-assert ('5'), "Not properly display index"
-assert ('ls -l'), "Not properly display command"
+sendline("echo hello | rev")
 
-# exuecute the program
-sendline("!p")
+# test nevigating commands with arrow keys
+sendline("\x1B[A")
+expect("olleh")
 
-# execute the history builtin command
-run_builtin('history')
+sendline("exit");
 
-assert ('1'), "Not properly display index"
-assert ('ls -l'), "Not properly display command"
-assert ('2'), "Not properly display index"
-assert ('ps'), "Not properly display command"
-assert ('3'), "Not properly display index"
-assert ('ps -j'), "Not properly display command"
-assert ('4'), "Not properly display index"
-assert ('history'), "Not properly display command"
-assert ('5'), "Not properly display index"
-assert ('ls -l'), "Not properly display command"
-assert ('6'), "Not properly display index"
-assert ('ps -j'), "Not properly display command"
-
-# ensure that shell prints expected prompt
-expect_prompt("The shell does not print expected prompt!")
+# ensure that no extra characters are output after exiting
+expect_exact("exit\r\n", "Shell output extraneous characters")
 
 test_success()

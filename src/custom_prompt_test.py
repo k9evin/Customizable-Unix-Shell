@@ -10,5 +10,8 @@ console = setup_tests()
 # ensure that shell prints expected prompt
 #setup
 sendline("")
+
+# ensure that shell prints expected prompt
 expect("<[^@]*@[^>]*>\$")
+
 test_success()

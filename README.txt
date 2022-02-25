@@ -123,3 +123,5 @@ The custom prompt outputting username, hostname, and the current working directo
 
 history
 The history builtin prints out the user's history, up/down arrow key navigation for previous commands.
+!substring runs the most recent command starting with substring. !! runs the most recent command. !n
+runs the nth command in the history.

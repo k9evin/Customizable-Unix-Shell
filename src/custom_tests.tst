@@ -1,2 +1,3 @@
 = Tests for Custom Features
-1 custom_prompt_test.py
+10 custom_prompt_test.py
+10 history_test.py

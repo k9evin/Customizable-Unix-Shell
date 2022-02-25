@@ -119,4 +119,7 @@ back terminal control to the shell. Last but not least, unblock the SigChld.
 List of Additional Builtins Implemented
 ---------------------------------------
 custom prompt
-The custom prompt
+The custom prompt outputting username, hostname, and the current working directory.
+
+history
+The history builtin prints out the user's history, up/down arrow key navigation for previous commands.

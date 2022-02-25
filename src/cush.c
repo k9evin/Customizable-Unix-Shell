@@ -10,8 +10,8 @@
 #include <libgen.h>
 #include <limits.h>
 #include <stdio.h>
-#include <readline/history.h>
 #include <readline/readline.h>
+#include <readline/history.h>
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <termios.h>
@@ -40,11 +40,11 @@ static void usage(char *progname) {
 static char *build_prompt(void) {
     char hostn[1204] = "";
     gethostname(hostn, sizeof(hostn));
-    printf("<%s@%s in %s>$ ", getenv("LOGNAME"), basename(hostn),
+    printf("<%s@%s %s>$ ", getenv("LOGNAME"), basename(hostn),
            basename(getenv("PWD")));
     return strdup("");
-    // return strdup("cush> ");
-}
+    //return strdup("cush> ");
+} 
 
 enum job_status {
     FOREGROUND,    /* job is running in foreground.  Only one job can be
@@ -68,7 +68,7 @@ struct job {
                             stopped after having been in foreground */
     int total_processes; /* Total number of processes */
     int pid[MAX_CAP];    /* pid array */
-    pid_t pgid;          /* Process group id */
+    pid_t pgid;            /* Process group id */
 };
 
 void handle_child_process(int fds[], bool not_last, int total_pipes,
@@ -116,7 +116,7 @@ static struct job *get_job_from_pid(pid_t pid) {
             }
         }
         return NULL;
-    }
+    } 
     /* Return NULL if pid is invalid */
     else {
         return NULL;
@@ -306,12 +306,12 @@ static void handle_child_status(pid_t pid, int status) {
         termstate_save(&job->saved_tty_state);
         /* Print the stopped process */
         print_job(job);
-    }
+    } 
     /* Check if the child exited */
     else if (WIFEXITED(status)) {
         /* Decrement the number of running processes */
         job->num_processes_alive--;
-    }
+    } 
     /* Check if the child was terminated by a signal */
     else if (WIFSIGNALED(status)) {
         job->num_processes_alive = 0;
@@ -462,9 +462,12 @@ void handle_build_in(struct ast_command *cmd) {
             printf("fg: job id is missing\n");
         }
     } else if (strcmp(*cmd_argv, "history") == 0) {
+        /* Get the state of the history, eg. history length */
         HISTORY_STATE *history = history_get_history_state();
+        /* Obtain the history list */
         HIST_ENTRY **hist_list = history_list();
         for (int i = 0; i < history->length; i++) {
+            /* Print out the history list */
             printf("%d %s\n", (i + 1), hist_list[i]->line);
         }
     }
@@ -476,8 +479,7 @@ void execute(struct ast_command_line *cmdline) {
     for (struct list_elem *e = list_begin(&cmdline->pipes);
          e != list_end(&cmdline->pipes); e = list_next(e)) {
         /* Get the pipeline from the command line */
-        struct ast_pipeline *pipe_line =
-            list_entry(e, struct ast_pipeline, elem);
+        struct ast_pipeline *pipe_line = list_entry(e, struct ast_pipeline, elem);
 
         /* Get the first command from the pipeline */
         struct ast_command *cmd = list_entry(list_begin(&pipe_line->commands),
@@ -494,6 +496,7 @@ void execute(struct ast_command_line *cmdline) {
 }
 
 void handle_pipeline(struct ast_pipeline *pipe_line, struct ast_command *cmd) {
+
     int pipe_counter = 0;
     pid_t pid = -1;
 
@@ -501,8 +504,7 @@ void handle_pipeline(struct ast_pipeline *pipe_line, struct ast_command *cmd) {
     struct job *j = add_job(pipe_line);
     /* Get the total number of commands in the pipeline */
     int total_commands = list_size(&pipe_line->commands);
-    /* The total number of pipes should be one less than the number of total
-     * commands */
+    /* The total number of pipes should be one less than the number of total commands */
     int total_pipes = total_commands - 1;
     /* Initialize the current command counter */
     int curr_cmd = 0;
@@ -545,6 +547,7 @@ void handle_pipeline(struct ast_pipeline *pipe_line, struct ast_command *cmd) {
     for (struct list_elem *cmd_line = list_begin(&pipe_line->commands);
          cmd_line != list_end(&pipe_line->commands);
          cmd_line = list_next(cmd_line)) {
+
         struct ast_command *cmd =
             list_entry(cmd_line, struct ast_command, elem);
 
@@ -579,7 +582,7 @@ void handle_pipeline(struct ast_pipeline *pipe_line, struct ast_command *cmd) {
 
             /* Handle the child process after forking */
             handle_child_process(fds, not_last, total_pipes, pipe_counter,
-                                 cmd_arg, argv);
+                                cmd_arg, argv);
         }
 
         /* Parent process */
@@ -593,7 +596,7 @@ void handle_pipeline(struct ast_pipeline *pipe_line, struct ast_command *cmd) {
             setpgid(pid, pgid);
             /* Add pid to the pid array in job */
             j->pid[curr_cmd] = pid;
-
+            
             /* Update the number of alive process and the total process */
             j->num_processes_alive = j->num_processes_alive + 1;
             j->total_processes = j->total_processes + 1;
@@ -620,7 +623,8 @@ void handle_pipeline(struct ast_pipeline *pipe_line, struct ast_command *cmd) {
         j->status = BACKGROUND;
         /* Print the job running on the BG */
         printf("[%d] %d\n", j->jid, pid);
-    } else {
+    }
+    else {
         /* Give the terminal to the process group */
         termstate_give_terminal_to(NULL, pgid);
         /* Wait until the job is done */
@@ -696,30 +700,47 @@ int main(int ac, char *av[]) {
         /* Do not output a prompt unless shell's stdin is a terminal */
         char *prompt = isatty(0) ? build_prompt() : NULL;
         char *cmdline = readline(prompt);
+        char *expansion;
+        int result;
         free(prompt);
 
         if (cmdline == NULL) { /* User typed EOF */
             break;
         } else {
-            add_history(cmdline);
-            add_history_time(cmdline);
+            /* Expand the command using GNU history library */
+            result = history_expand(cmdline, &expansion);
+            /* 0 if no expansion takes place, 
+             * -1 if an error happened,
+             * 2 if the returned line should only be displayed, but not executed
+             */
+            if (result < 0 || result == 2) {
+                exit(EXIT_FAILURE);
+            } else {
+                /* Add the command into the history */
+                add_history(expansion);
+                struct ast_command_line *cline = ast_parse_command_line(expansion);
+
+                /* Free the cmdline and expansion */
+                free(cmdline);
+                free(expansion);
+
+                if (cline == NULL) /* Error in command line */
+                    continue;
+
+                if (list_empty(&cline->pipes)) { /* User hit enter */
+                    ast_command_line_free(cline);
+                    continue;
+                } else {
+                    /* Execute the command */
+                    execute(cline);
+                }
+            }
         }
 
-        struct ast_command_line *cline = ast_parse_command_line(cmdline);
-        free(cmdline);
-        if (cline == NULL) /* Error in command line */
-            continue;
+        
 
-        if (list_empty(&cline->pipes)) { /* User hit enter */
-            ast_command_line_free(cline);
-            continue;
-        } else {
-            execute(cline);
-        }
-
-        /* Output a representation of the entered command line (Useful when
-         * debugging) */
-        // ast_command_line_print(cline);
+        /* Output a representation of the entered command line (Useful when debugging) */
+        // ast_command_line_print(cline); 
         // /* Free the command line.
         //  * This will free the ast_pipeline objects still contained
         //  * in the ast_command_line.  Once you implement a job list

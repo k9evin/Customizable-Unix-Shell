@@ -9,9 +9,9 @@
 #include <fcntl.h>
 #include <libgen.h>
 #include <limits.h>
+#include <stdio.h>
 #include <readline/history.h>
 #include <readline/readline.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <termios.h>

@@ -12,5 +12,5 @@ console = setup_tests()
 # ensure that shell prints expected prompt
 #setup
 sendline("")
-expect("<[^@]*@[^>]*>\$")
+expect_prompt("<[^@]*@[^>]*>\$")
 test_success()

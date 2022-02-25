@@ -1,6 +1,22 @@
-<jiayuelin@gum.rlogin in src>$ ls -als -a
+<jiayuelin@gum.rlogin in src>$ /home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpKhRdwq -divzero/home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpKhRdwq -divzero
 
-.     cush.c		     custom_tests.tst	 history_test.py  list.o    output_spec.py   shell-ast.h      shell-grammar.o	signal_support.h	termstate_management.h	utils.c  .vscode
-..    cush.o		     gback_glob_test.py  list.c		  log.txt   output_spec.pyc  shell-ast.o      shell-grammar.y	signal_support.o	termstate_management.o	utils.h
-cush  custom_prompt_test.py  .gitignore		 list.h		  Makefile  shell-ast.c      shell-grammar.l  signal_support.c	termstate_management.c	.tmp			utils.o
-<jiayuelin@gum.rlogin in src>$ historyhistory
+floating point exception
+Success
+<jiayuelin@gum.rlogin in src>$ /home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpKhRdwq -segfault/home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpKhRdwq -segfault
+
+segmentation fault
+Success
+<jiayuelin@gum.rlogin in src>$ /home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpKhRdwq -abort/home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpKhRdwq -abort
+
+aborted
+Success
+<jiayuelin@gum.rlogin in src>$ /home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpKhRdwq/home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpKhRdwq
+
+killed
+Success
+<jiayuelin@gum.rlogin in src>$ /home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpKhRdwq/home/ugrads/nonmajors/jiayuelin/3214/P1-Unix-Shell/src/.tmp/tmpKhRdwq
+
+terminated
+Success
+<jiayuelin@gum.rlogin in src>$ exitexit
+

@@ -17,6 +17,6 @@ sendline("ls -a")
 run_builtin('history')
 
 # ensure that shell prints expected prompt
-expect_prompt("The shell does not have the proper prompt!")
+expect_prompt("The shell does not print expected prompt!")
 
 test_success()
